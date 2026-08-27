@@ -1,0 +1,24 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payments
+    username: ${DB_USERNAME:payments}
+    password: ${DB_PASSWORD:payments}
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ledger-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  flyway:
+    enabled: true
+    table: flyway_schema_history_ledger
+    baseline-on-migrate: true
+    baseline-version: 0
