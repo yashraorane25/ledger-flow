@@ -31,6 +31,13 @@ public class LedgerAccount {
     protected LedgerAccount() {
     }
 
+    public LedgerAccount(UUID id, String accountCode, String accountType, String currency) {
+        this.id = id;
+        this.accountCode = accountCode;
+        this.accountType = accountType;
+        this.currency = currency;
+    }
+
     @PrePersist
     void onCreate() {
         this.createdAt = Instant.now();

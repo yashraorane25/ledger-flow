@@ -31,9 +31,7 @@ public class AuthorizationConsumer {
     private final ProcessedEventRepository processedEventRepository;
     private final ObjectMapper objectMapper;
 
-    public AuthorizationConsumer(PaymentRepository paymentRepository,
-                                  ProcessedEventRepository processedEventRepository,
-                                  ObjectMapper objectMapper) {
+    public AuthorizationConsumer(PaymentRepository paymentRepository, ProcessedEventRepository processedEventRepository, ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
         this.processedEventRepository = processedEventRepository;
         this.objectMapper = objectMapper;
@@ -69,12 +67,9 @@ public class AuthorizationConsumer {
     }
 
     private void applyOutcome(UUID paymentId, Consumer<Payment> mutator) {
-        paymentRepository.findById(paymentId).ifPresentOrElse(
-                payment -> {
-                    mutator.accept(payment);
-                    paymentRepository.save(payment);
-                },
-                () -> log.warn("Received authorization outcome for unknown payment {}", paymentId)
-        );
+        paymentRepository.findById(paymentId).ifPresentOrElse(payment -> {
+            mutator.accept(payment);
+            paymentRepository.save(payment);
+        }, () -> log.warn("Received authorization outcome for unknown payment {}", paymentId));
     }
 }

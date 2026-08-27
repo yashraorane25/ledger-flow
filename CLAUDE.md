@@ -16,7 +16,7 @@ Java 21, Spring Boot 4.1, Maven, Flyway, Testcontainers 2.x
 - Testcontainers 2.x: imports are `org.testcontainers.kafka.KafkaContainer`,
   NOT `org.testcontainers.containers.*`. Containers need an explicit image.
 - Kafka topics: `payments.events` (3 partitions, keyed by payment ID),
-  `payments.retry`, `payments.dlt`
+  `payments.dlt`
 - Every consumer is idempotent via `processed_events` (event_id, consumer_group)
 - Journal debits must equal credits — enforced in service layer, asserted in tests
 
