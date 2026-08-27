@@ -2,12 +2,15 @@ package com.ledgerflow.payment_service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ledgerflow.payment_service.authorization.AuthorizationDecision;
+import com.ledgerflow.payment_service.authorization.AuthorizationSimulator;
 import com.ledgerflow.payment_service.outbox.OutboxEvent;
 import com.ledgerflow.payment_service.outbox.OutboxEventRepository;
 import com.ledgerflow.payment_service.payment.dto.CreatePaymentRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,13 +20,16 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final AuthorizationSimulator authorizationSimulator;
     private final ObjectMapper objectMapper;
 
     public PaymentService(PaymentRepository paymentRepository,
                            OutboxEventRepository outboxEventRepository,
+                           AuthorizationSimulator authorizationSimulator,
                            ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
         this.outboxEventRepository = outboxEventRepository;
+        this.authorizationSimulator = authorizationSimulator;
         this.objectMapper = objectMapper;
     }
 
@@ -62,7 +68,37 @@ public class PaymentService {
         );
         outboxEventRepository.save(event);
 
+        publishAuthorizationOutcome(payment);
+
         return payment;
+    }
+
+    // Simulates an async authorization callback: writes a second outbox event
+    // in the same transaction as payment creation, which AuthorizationConsumer
+    // later picks up (via Kafka, after the relay publishes it) to flip the
+    // payment's status. See AuthorizationSimulator for the decision rule.
+    private void publishAuthorizationOutcome(Payment payment) {
+        AuthorizationDecision decision = authorizationSimulator.decide(payment.getAmountMinor());
+
+        UUID eventId = UUID.randomUUID();
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("eventId", eventId.toString());
+        payload.put("eventType", decision.eventType());
+        payload.put("paymentId", payment.getId().toString());
+        payload.put("idempotencyKey", payment.getIdempotencyKey());
+        payload.put("amountMinor", payment.getAmountMinor());
+        payload.put("currency", payment.getCurrency());
+        payload.put("status", decision.statusName());
+        payload.put("failureReason", decision.reason());
+
+        OutboxEvent event = new OutboxEvent(
+                eventId,
+                payment.getId(),
+                "PAYMENT",
+                decision.eventType(),
+                writeJson(payload)
+        );
+        outboxEventRepository.save(event);
     }
 
     @Transactional(readOnly = true)

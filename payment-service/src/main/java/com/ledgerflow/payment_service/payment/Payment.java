@@ -68,6 +68,15 @@ public class Payment {
         this.updatedAt = Instant.now();
     }
 
+    public void markAuthorized() {
+        this.status = PaymentStatus.AUTHORIZED;
+    }
+
+    public void markDeclined(String reason) {
+        this.status = PaymentStatus.FAILED;
+        this.failureReason = reason;
+    }
+
     public UUID getId() {
         return id;
     }

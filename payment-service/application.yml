@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: payment-service
   datasource:
     url: jdbc:postgresql://localhost:5432/payments
     username: ${DB_USERNAME:payments}
@@ -8,6 +10,11 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: payment-service-authorization
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   data:
     redis:
       host: localhost
@@ -17,3 +24,7 @@ spring:
     table: flyway_schema_history_payment
     baseline-on-migrate: true
     baseline-version: 0
+
+ledgerflow:
+  authorization:
+    decline-threshold-minor: 1000000

@@ -9,6 +9,7 @@ public record PaymentEventEnvelope(
         String idempotencyKey,
         long amountMinor,
         String currency,
-        String status
+        String status,
+        String failureReason
 ) {
 }
