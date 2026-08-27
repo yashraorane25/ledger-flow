@@ -19,7 +19,8 @@ public class PaymentEventsConsumer {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "payments.events", groupId = PaymentEventProcessor.CONSUMER_GROUP)
+    @KafkaListener(topics = "payments.events", groupId = PaymentEventProcessor.CONSUMER_GROUP,
+            containerFactory = "dlqCapableListenerContainerFactory")
     public void onMessage(String message) {
         try {
             PaymentEventEnvelope event = objectMapper.readValue(message, PaymentEventEnvelope.class);
