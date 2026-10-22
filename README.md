@@ -93,6 +93,7 @@ Java 21 · Spring Boot 4.1 · Maven · Kafka (KRaft) · PostgreSQL 16 · Redis 8
 ```
 payment-service/   REST API, outbox relay, authorization simulator + consumer
 ledger-service/    ledger consumer, balance API, reconciliation, DLQ handler
+ledger-frontend/   React + TypeScript + Vite operations console
 docker-compose.yml Kafka, Postgres, Redis
 ```
 
@@ -114,6 +115,11 @@ or floating point.
    ```bash
    cd ledger-service && ./mvnw spring-boot:run
    ```
+3. (Optional) Start the frontend operations console:
+   ```bash
+   cd ledger-frontend && npm install && npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
 
 Each service reads its own `application.yml` and manages its own Flyway
 migrations against the shared Postgres database, tracked in separate
