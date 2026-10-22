@@ -5,6 +5,8 @@ Kafka-based service decoupling, the transactional outbox pattern, and
 double-entry accounting — with Redis-cached reads and Postgres as the
 source of truth throughout.
 
+> 💡 **New to these concepts?** See [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for a beginner-friendly explanation using simple terms and real-world analogies.
+
 Two Spring Boot services communicate exclusively through Kafka: a payment
 is created, authorized asynchronously, and booked into a double-entry
 ledger, all without either service calling the other directly over HTTP.
